@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: trendwatch
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-trendwatch}
+      POSTGRES_DB: trendwatch
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trendwatch"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build: .
+    environment: &app-env
+      DATABASE_URL: postgresql+psycopg2://trendwatch:${POSTGRES_PASSWORD:-trendwatch}@db:5432/trendwatch
+      WIKI_USER_AGENT: ${WIKI_USER_AGENT:-TrendWatch/0.1 (proyecto universitario)}
+      WIKI_PROJECT: ${WIKI_PROJECT:-es.wikipedia}
+      POLL_INTERVAL_SECONDS: ${POLL_INTERVAL_SECONDS:-86400}
+      HISTORY_DAYS: ${HISTORY_DAYS:-90}
+    ports: ["8000:8000"]
+    depends_on:
+      db: {condition: service_healthy}
+
+  worker:
+    build: .
+    command: ["python", "-m", "trendwatch.worker"]
+    environment: *app-env
+    depends_on:
+      db: {condition: service_healthy}
+
+  dashboard:
+    build: ./dashboard
+    environment:
+      API_URL: http://api:8000
+    ports: ["8501:8501"]
+    depends_on: [api]
+
+volumes:
+  pgdata:

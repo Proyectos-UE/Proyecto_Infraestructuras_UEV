@@ -1,0 +1,10 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+sqlalchemy>=2.0
+psycopg2-binary>=2.9
+pandas>=2.1
+numpy>=1.26
+requests>=2.31
+pydantic>=2.6
+# Extra opcional (librería archivada, ver docs/fuentes_de_datos.md)
+# pytrends>=4.9.2
