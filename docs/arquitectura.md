@@ -25,7 +25,7 @@ flowchart LR
     API --> UI
 ```
 
-Todo se ejecuta en contenedores (`docker-compose`): `db`, `api`, `worker`, `dashboard`.
+La configuración Docker Compose define cinco servicios: base de datos, API principal, API externa simulada, worker y dashboard.
 
 ## UML de clases (simplificado)
 

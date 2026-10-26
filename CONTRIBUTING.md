@@ -1,27 +1,31 @@
-# Cómo trabajamos
+# Cómo trabajamos en el repositorio
 
 ## Ramas
-- `main` siempre funciona y está protegida: **nadie hace push directo**.
-- Cada tarea, una rama: `feat/<tema>`, `fix/<tema>`, `docs/<tema>`.
-- Se integra con **Pull Request** y al menos **1 revisión** de otra persona del equipo.
-- El CI (tests + build de Docker) debe pasar antes de hacer merge.
 
-## Commits
-Mensajes en imperativo y descriptivos: `Añade conector de Wikipedia`, no `cambios` ni `update`.
-Commits pequeños y frecuentes, cada uno con su propia autoría.
+- `main` se mantiene **vacía**, como ha indicado el profesor. No enviar allí los archivos del proyecto.
+- `test` es la rama que contiene la versión integrada del proyecto y que usamos para verificar las entregas.
+- Cada tarea nueva se trabaja en su propia rama: `feat/<tema>`, `fix/<tema>` o `docs/<tema>`, partiendo de `test`.
+- Al terminar, hacemos un Pull Request hacia `test` y revisamos que pasen las pruebas automáticas antes de fusionar.
+- No se deben sobrescribir cambios locales de otra persona ni subir `.env` con secretos.
 
-## Antes de abrir un PR
+## Antes de hacer un Pull Request
+
 ```bash
-pytest
+python -m pytest -q
+docker compose config -q
 ```
 
-## Reparto de áreas
+En el primer arranque se puede crear una configuración privada mediante
+`python scripts/preparar_config.py`, y ejecutar los servicios con
+`docker compose up --build`.
 
-| Área | Responsable | Carpeta principal |
+## Reparto inicial
+
+| Área | Responsable | Carpeta |
 |---|---|---|
 | Conectores y datos | Alessandro | `src/trendwatch/connectors/` |
-| Detector y backtest | Eduardo | `src/trendwatch/detection/`, `notebooks/` |
+| Detector y backtest | Eduardo | `src/trendwatch/detection/`, `notebooks/`, `scripts/backtest.py` |
 | API y base de datos | Jordi | `src/trendwatch/api/`, `models.py`, `services.py` |
 | Infraestructura y despliegue | Pablo | `Dockerfile`, `docker-compose.yml`, `.github/` |
 
-*(Reparto inicial propuesto; cambiadlo entre vosotros si preferís otro.)*
+*El reparto es orientativo y puede ajustarse en el equipo.*

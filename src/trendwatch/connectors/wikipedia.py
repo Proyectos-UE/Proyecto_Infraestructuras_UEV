@@ -1,19 +1,13 @@
-"""Conector de la Wikimedia Pageviews API (oficial, gratuita, sin clave).
-
-Doc: https://wikimedia.org/api/rest_v1/#/Pageviews%20data
-"""
+"""Conector real a Wikimedia Pageviews API (externa a nuestra aplicación)."""
 from __future__ import annotations
 
 import datetime as dt
-import logging
 from urllib.parse import quote
 
 import requests
-
 from .. import config
+from ..services import InvalidSourceData, SourceUnavailable
 from .base import Connector, Point
-
-log = logging.getLogger(__name__)
 
 BASE = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article"
 
@@ -34,19 +28,25 @@ class WikipediaConnector(Connector):
         )
 
     def fetch(self, term: str, start: dt.date, end: dt.date) -> list[Point]:
-        url = self._url(term, start, end)
         try:
-            resp = requests.get(url, headers=self.headers, timeout=self.timeout)
+            resp = requests.get(self._url(term, start, end), headers=self.headers, timeout=self.timeout)
         except requests.RequestException as exc:
-            log.warning("Wikipedia no disponible para %r: %s", term, exc)
-            return []
-        if resp.status_code == 404:  # artículo inexistente o sin datos en el rango
+            raise SourceUnavailable("No se puede contactar con Wikimedia") from exc
+        if resp.status_code == 404:
             return []
         if resp.status_code != 200:
-            log.warning("Wikipedia devolvió %s para %r", resp.status_code, term)
-            return []
-        points = []
-        for item in resp.json().get("items", []):
-            day = dt.datetime.strptime(item["timestamp"][:8], "%Y%m%d").date()
-            points.append(Point(day, float(item["views"])))
-        return points
+            raise SourceUnavailable("Wikimedia devolvió un error HTTP")
+        try:
+            items = resp.json()["items"]
+            if not isinstance(items, list):
+                raise ValueError("items no es una lista")
+            points = []
+            for item in items:
+                day = dt.datetime.strptime(item["timestamp"][:8], "%Y%m%d").date()
+                views = item["views"]
+                if isinstance(views, bool) or not isinstance(views, int) or views < 0:
+                    raise ValueError("Número de visitas inválido")
+                points.append(Point(day, float(views)))
+            return points
+        except (ValueError, KeyError, TypeError) as exc:
+            raise InvalidSourceData("Wikimedia devolvió registros inválidos") from exc

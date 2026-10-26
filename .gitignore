@@ -10,3 +10,11 @@ data/raw/*
 !data/raw/.gitkeep
 .vscode/
 .idea/
+
+# Configuración privada y archivos locales adicionales
+.env.*
+!.env.example
+.DS_Store
+.coverage
+htmlcov/
+*.egg-info/
