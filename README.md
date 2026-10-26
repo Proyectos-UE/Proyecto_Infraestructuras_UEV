@@ -5,6 +5,20 @@ Equipo: Pablo Díaz, Eduardo Caicedo, Jordi Aguado y Alessandro Matos.
 
 TrendWatch permite registrar productos en una lista de vigilancia, recoger datos de interés por HTTP, almacenar su histórico y detectar picos con un **z-score** y crecimiento respecto a la media móvil. No predice ventas ni cantidades de compras: identifica señales de atención.
 
+## Mapa rápido del repositorio
+
+| Carpeta | Contenido |
+|---|---|
+| [src/trendwatch/](src/trendwatch/) | API FastAPI, modelos, conectores, worker y detector. |
+| [dashboard/](dashboard/) | Panel de visualización Streamlit. |
+| [scripts/](scripts/) | Configuración, importación y backtest en Python. |
+| [tests/](tests/) | Pruebas automáticas y casos de error. |
+| [notebooks/](notebooks/README.md) | Cuadernos de análisis separados de la aplicación. |
+| [docs/](docs/README.md) | Arquitectura, fuentes, planificación y validación. |
+| [data/raw/](data/raw/) | Datos CSV locales no versionados. |
+
+La configuración de Docker y las dependencias quedan en la raíz para que los comandos de esta guía funcionen sin mover rutas.
+
 ## 1. Qué se entrega
 
 - **API REST FastAPI** con documentación OpenAPI automática: `/docs` y `/openapi.json`.
@@ -158,7 +172,7 @@ docker compose up --build
 
 **Seguridad:** la clave API y contraseña de PostgreSQL se generan localmente y no aparecen en el repositorio. Los endpoints de lectura son públicos por diseño; los de escritura necesitan clave. No se deben reutilizar estos ejemplos como configuración de producción sin HTTPS, redes privadas, rotación de secretos y controles de acceso adicionales.
 
-## 8. Estructura y siguientes fases
+## 8. Estructura técnica
 
 ```text
 src/trendwatch/api/main.py           API y OpenAPI
@@ -175,7 +189,7 @@ docs/                                Arquitectura, fuentes y planificación
 .github/workflows/ci.yml            Pruebas y compilación Docker en cada PR
 ```
 
-Pendiente en fases siguientes: backtesting histórico con productos virales, despliegue en nube, validación con fuentes de comercio electrónico y ampliación a otras redes. Más información en `docs/arquitectura.md`, `docs/fuentes_de_datos.md` y `docs/planificacion.md`.
+Las guías de arquitectura, fuentes y planificación están agrupadas en el [índice de documentación](docs/README.md). El backtest reproducible de la sección siguiente ya está implementado; quedan pendientes su validación con casos reales, el despliegue en nube y la ampliación de fuentes.
 
 ## 9. Validación integral y backtest reproducible
 
