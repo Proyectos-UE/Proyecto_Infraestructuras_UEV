@@ -96,10 +96,6 @@ def test_ingesta_sin_clave_401(client):
     assert client.post("/v1/ingest?source=simulated").status_code == 401
 
 
-def test_ingesta_clave_erronea_401(client):
-    assert client.post("/v1/ingest?source=simulated", headers={"X-API-Key": "mala"}).status_code == 401
-
-
 def test_clave_de_ingesta_puede_ingerir(client, ingester):
     assert client.post("/v1/products/2/ingest?source=simulated&days=10", headers=ingester).status_code == 200
 

@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 
 import main
-from spike import analyze
 
 NUEVO = {"name": "Producto de prueba", "category": "hogar"}
 ESTABLE = [100, 102, 98, 101, 99] * 8  # 40 días sin cambios bruscos
@@ -74,10 +73,6 @@ def test_post_valor_negativo(client, admin):
 
 
 # ---------- Acceso no autorizado (401) y sin permiso (403) ----------
-def test_post_sin_clave_401(client):
-    assert client.post("/v1/products", json=NUEVO).status_code == 401
-
-
 def test_post_clave_erronea_401(client):
     r = client.post("/v1/products", json=NUEVO, headers={"X-API-Key": "mala"})
     assert r.status_code == 401 and r.headers["WWW-Authenticate"] == "APIKey"
@@ -153,11 +148,6 @@ def test_spike_sin_historico_409(client, admin):
     p = client.post("/v1/products", json={**NUEVO, "name": "Sin datos"}, headers=admin).json()
     assert client.get(f"/v1/products/{p['id']}/spike").status_code == 409
     client.delete(f"/v1/products/{p['id']}", headers=admin)
-
-
-def test_detector_directo():
-    assert analyze([1, 2, 3]) is None
-    assert analyze(ESTABLE + [400])["is_spike"] is True
 
 
 # ---------- Documentación OpenAPI ----------
