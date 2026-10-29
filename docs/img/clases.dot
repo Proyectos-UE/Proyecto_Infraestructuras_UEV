@@ -1,0 +1,21 @@
+digraph clases {
+  rankdir=TB;
+  fontname="Helvetica";
+  node [shape=record, style=filled, fillcolor="#f7fafc", fontname="Helvetica", fontsize=10, color="#4a5568"];
+  edge [fontname="Helvetica", fontsize=9, color="#4a5568"];
+
+  IngestRun [label="{IngestRun|+ at: datetime\l+ product_id: int\l+ name: str\l+ source: str\l+ status: ok \| no_data \| failed\l+ detail: str\l}"];
+  IngestReport [label="{IngestReport|+ product_id: int\l+ source: wikipedia \| simulated\l+ status: ok \| no_data\l+ received, accepted, rejected\l+ inserted, updated\l+ replaced_previous_source: bool\l+ rejected_samples: str[]\l}"];
+  Wikimedia [label="{WikimediaItem (API externa)|+ timestamp: AAAAMMDDHH\l+ views: int (≥ 0)\l}", fillcolor="#feebc8"];
+  Product [label="{Product|+ id: int (\> 0)\l}"];
+  ProductDraft [label="{ProductDraft|+ name: str (1-80)\l+ category: str (1-40)\l+ wiki_article: str?\l+ source: str\l+ series: SeriesPoint[0..730]\l|+ check_and_sort_series()\l}"];
+  SeriesPoint [label="{SeriesPoint|+ date: date\l+ value: float (≥ 0)\l}"];
+  SpikeResult [label="{SpikeResult|+ is_spike: bool\l+ z_score: float\l+ growth: float\l+ last_value: float\l+ baseline_mean: float\l}"];
+
+  IngestRun -> IngestReport [style=dashed, arrowhead=vee, label="registra"];
+  IngestReport -> Product [style=dashed, arrowhead=vee, label="informa de"];
+  Wikimedia -> SeriesPoint [style=dashed, arrowhead=vee, label="validate() → 1 día"];
+  Product -> ProductDraft [arrowhead=empty, label="hereda"];
+  Product -> SpikeResult [style=dashed, arrowhead=vee, label="analyze()"];
+  Product -> SeriesPoint [arrowtail=diamond, dir=back, arrowhead=none, taillabel="", headlabel="0..730", label="serie"];
+}

@@ -1,0 +1,37 @@
+digraph componentes {
+  rankdir=LR;
+  fontname="Helvetica"; fontsize=12;
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11, color="#4a5568", fillcolor="#ffffff"];
+  edge [fontname="Helvetica", fontsize=9, color="#4a5568"];
+
+  cliente [label="Cliente\n(Swagger /docs, scripts,\nfuturo dashboard)", fillcolor="#edf2f7"];
+
+  subgraph cluster_api {
+    label="TrendWatch API (FastAPI)"; labeljust=c; style="rounded,filled"; fillcolor="#f7fafc"; color="#2b6cb0";
+    auth     [label="Autenticación y roles\nX-API-Key: admin / ingest", fillcolor="#fed7d7"];
+    endpoints[label="Endpoints REST /v1\nproductos · series · spike\nrankings · search · admin", fillcolor="#bee3f8"];
+    ingesta  [label="Ingesta\nextracción → validación\n→ reglas → carga", fillcolor="#c6f6d5"];
+    detector [label="Detector de picos\n(z-score + crecimiento)", fillcolor="#fefcbf"];
+    busqueda [label="Búsqueda libre\n(caché 1 h + límite por IP)", fillcolor="#e9d8fd"];
+    datos    [label="data/products.json\n(guardado atómico + bloqueo)", shape=cylinder, style="filled", fillcolor="#e2e8f0"];
+  }
+
+  subgraph cluster_ext {
+    label="Fuentes externas"; labeljust=c; style="rounded,filled"; fillcolor="#fffaf0"; color="#c05621";
+    wiki   [label="Wikimedia Pageviews API\n(real)", fillcolor="#feebc8"];
+    sim    [label="API simulada\n(mismo formato, sin Internet)", fillcolor="#feebc8"];
+    trends [label="Google Trends\n(PyTrends, opcional)", fillcolor="#feebc8"];
+  }
+
+  cliente -> auth [label="HTTP + clave"];
+  auth -> endpoints;
+  endpoints -> datos [label="lee / escribe"];
+  endpoints -> ingesta;
+  endpoints -> detector;
+  endpoints -> busqueda;
+  ingesta -> datos [label="fusiona por fecha"];
+  ingesta -> wiki [label="HTTPS"];
+  ingesta -> sim [style=dashed, label="source=simulated"];
+  busqueda -> trends;
+  busqueda -> wiki [label="alternativa si\nTrends falla"];
+}
