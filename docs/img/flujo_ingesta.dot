@@ -1,0 +1,39 @@
+digraph flujo_ingesta {
+  rankdir=TB;
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=10, color="#4a5568"];
+  edge [fontname="Helvetica", fontsize=9, color="#4a5568"];
+
+  inicio [label="POST /v1/products/{id}/ingest\n(?days=7..365&source=wikipedia|simulated)", fillcolor="#c6f6d5"];
+
+  q1 [shape=diamond, fillcolor="#fefcbf", label="¿Clave válida?"];
+  q2 [shape=diamond, fillcolor="#fefcbf", label="¿Permiso de ingesta?\n(rol ingest o admin)"];
+  q0 [shape=diamond, fillcolor="#fefcbf", label="¿Existe el producto?"];
+  q3 [shape=diamond, fillcolor="#fefcbf", label="source=wikipedia:\n¿WIKI_USER_AGENT\nconfigurado?"];
+  q4 [shape=diamond, fillcolor="#fefcbf", label="¿Pasó la espera mínima\ndel producto?"];
+
+  e401 [label="401", fillcolor="#fed7d7"];
+  e403 [label="403", fillcolor="#fed7d7"];
+  e404 [label="404", fillcolor="#fed7d7"];
+  e503 [label="503", fillcolor="#fed7d7"];
+  e429 [label="429\n(Retry-After)", fillcolor="#fed7d7"];
+  e502 [label="502  la API externa falla", fillcolor="#fed7d7"];
+  e422 [label="422  no se carga nada", fillcolor="#fed7d7"];
+
+  s1 [fillcolor="#bee3f8", label="1. EXTRACCIÓN\npetición a la API externa\n(timeout 15 s, 1 reintento)"];
+  s2 [fillcolor="#bee3f8", label="2. VALIDACIÓN registro a registro\nformato · rango · ventana · duplicados"];
+  q5 [shape=diamond, fillcolor="#fefcbf", label="3. REGLA DE CALIDAD\n¿más del 20 % rechazados?"];
+  s4 [fillcolor="#bee3f8", label="4. CARGA idempotente\nfusión por fecha + guardado atómico"];
+  fin [fillcolor="#c6f6d5", label="Informe (IngestReport)\n+ registro de la ejecución (IngestRun)"];
+
+  inicio -> q1;
+  q1 -> q2 [label="sí"];  q1 -> e401 [label="no"];
+  q2 -> q0 [label="sí"];  q2 -> e403 [label="no"];
+  q0 -> q3 [label="sí"];  q0 -> e404 [label="no"];
+  q3 -> q4 [label="sí"];  q3 -> e503 [label="no"];
+  q4 -> s1 [label="sí"];  q4 -> e429 [label="no"];
+  s1 -> s2;
+  s1 -> e502 [style=dashed, label="falla"];
+  s2 -> q5;
+  q5 -> s4 [label="no"];  q5 -> e422 [label="sí"];
+  s4 -> fin;
+}
