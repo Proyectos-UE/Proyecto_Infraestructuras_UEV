@@ -4,8 +4,6 @@ Detección temprana de picos de interés en productos y nichos de mercado.
 Proyecto de **Infraestructuras y Computación en la Nube** (Grado en Ciencia de Datos) · segundo entregable.
 
 **Equipo:** Pablo Díaz · Eduardo Caicedo · Jordi Aguado · Alessandro Matos
-**Repositorio:** https://github.com/Proyectos-UE/Proyecto_Infraestructuras_6_7
-**Documento de la idea (primer checkpoint, completo):** [`docs/Documento_proyecto_TrendWatch.docx`](docs/Documento_proyecto_TrendWatch.docx)
 
 ## Qué hace
 
