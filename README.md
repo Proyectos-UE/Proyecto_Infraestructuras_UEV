@@ -144,9 +144,12 @@ Invoke-RestMethod -Method Post "$base/v1/ingest?source=simulated&days=60" -Heade
 Invoke-RestMethod "$base/v1/rankings/rising?limit=5"
 
 # 3) Ingesta REAL de un producto (requiere WIKI_USER_AGENT en .env y Internet)
+# La ingesta simulada del paso 1 incluyó este producto; esperar 30 s (o el valor configurado).
+Start-Sleep -Seconds 30
 Invoke-RestMethod -Method Post "$base/v1/products/1/ingest?source=wikipedia&days=90" -Headers $h
 
-# 4) Repetirla NO duplica datos: inserted=0, updated=0
+# 4) Repetirla tras otra espera NO duplica datos: inserted=0, updated=0
+Start-Sleep -Seconds 30
 Invoke-RestMethod -Method Post "$base/v1/products/1/ingest?source=wikipedia&days=90" -Headers $h
 
 # 5) Registro de las ingestas (solo admin)
