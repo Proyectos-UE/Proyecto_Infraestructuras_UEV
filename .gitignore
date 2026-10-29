@@ -4,4 +4,4 @@ __pycache__/
 .pytest_cache/
 .env
 ADMIN_API_KEY.txt
-data/*.tmp
+data/
